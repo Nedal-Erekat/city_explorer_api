@@ -14,15 +14,15 @@ app.get('/',(req,res)=>{
 app.get('/location',(req,res)=>{
 
     const city=req.query.data;
-    if(city==='Lynnwood'){
+    // if(city==='Lynnwood'){
         const getData= require('./data/location.json');
         const creatLocation=new Location(city,getData);
     
         res.send(creatLocation);
 
-    }else{
-        res.status(500).send("Sorry, something went wrong");
-    }
+    // }else{
+    //     res.status(500).send("Sorry, something went wrong");
+    // }
 
 });
 
@@ -54,7 +54,6 @@ function Weather(weatherData) {
     this.time=weatherData.datetime;
 }
 
-
 app.get('/weather',(req,res)=>{
     // const city = req.query.data;
     const getWeatherData=require('./data/weather.json');
@@ -68,6 +67,7 @@ app.get('/weather',(req,res)=>{
     res.send(data);
 
 })
+
 
 
 app.get('*',(req,res)=>{
