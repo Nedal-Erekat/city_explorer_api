@@ -12,12 +12,18 @@ app.get('/',(req,res)=>{
 })
 // http://localhost:3000/location?data=amman
 app.get('/location',(req,res)=>{
-    const city=req.query.data;
-    const getData= require('./data/location.json');
-    // console.log(getData);
-    const creatLocation=new Location(city,getData);
 
-    res.send(creatLocation);
+    const city=req.query.data;
+    if(city==='Lynnwood'){
+        const getData= require('./data/location.json');
+        const creatLocation=new Location(city,getData);
+    
+        res.send(creatLocation);
+
+    }else{
+        res.status(500).send("Sorry, something went wrong");
+    }
+
 });
 
 function Location(city,getData) {
