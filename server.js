@@ -47,29 +47,31 @@ function getLocation(city) {
         });
 
 };
-Location.all=[];
 function Location(city, getData) {
     this.search_query = city;
     this.formatted_query = getData[0].display_name;
     this.latitude = getData[0].lat;
     this.longitude = getData[0].lon;
-    Location.all.push(this);
 }
 
 function hitWeather(req, res) {
-        getWeather()
+    const lat = req.query.latitude;
+    const lon= req.query.longitude;
+
+        getWeather(lat,lon)
     .then(data=>{
         
         res.status(200).json(data);
     });     
 };
-function getWeather() {
+function getWeather(lat,lon) {
     // console.log(Location.all);
     
     let key=process.env.WEATHER_API_KEY;
-    let url=`https://api.weatherbit.io/v2.0/forecast/daily?&lat=${Location.all[0].latitude}&lon=${Location.all[0].longitude}&key=${key}`;
+    let url=`https://api.weatherbit.io/v2.0/forecast/daily?&lat=${lat}&lon=${lon}&key=${key}`;
     return superagent.get(url)
-    .then(data=>{        
+    .then(data=>{    
+            
         let generatData =data.body.data.map((element,i) => {
             const creatWeather = new Weather(element);
             return creatWeather;
@@ -87,51 +89,49 @@ function Weather(weatherData) {
 
 
 function hitTrails(req,res) {
-    getTrials()
+    const lat = req.query.latitude;
+    const lon= req.query.longitude;
+    getTrials(lat,lon)
     .then(data=>{
-        res.status(200).json(data);
+        res.status(200).json(data); 
     });
 }
 
-function getTrials() {
+function getTrials(lat,lon) {
     let key=process.env.TRAIL_API_KEY;
-    let url=`https://www.hikingproject.com/data/get-trails?lat=${Location.all[0].latitude}&lon=${Location.all[0].longitude}&key=${key}`;
+    let url=`https://www.hikingproject.com/data/get-trails?lat=${lat}&lon=${lon}&key=${key}`;
     return superagent.get(url)
     .then(data=>{
-        console.log('Here it is the data:>>>>>>>>>'+ data.body.trails);
+        console.log('Here it is the data:>>>>>>>>>'+ data);
+        // let trialData=[];
+        // data.body.trails.forEach(ele => {
+        // const creatTrail= new Trial(ele);
+        //     trialData.push(creatTrail);
+        // });
+        
         
         let trialData=data.body.trails.map((ele,i)=>{
-            const creatTrail= new Trial(ele)
+            const creatTrail= new Trial(ele);
             return creatTrail;
         });
+        console.log('Here it is the trialData:>>>>>>>>>'+ trialData);
         return trialData;
 
     });
 }
 
-// {
-//     "name": "Mt. Si",
-//     "location": "Tanner, Washington",
-//     "length": "6.6",
-//     "stars": "4.4",
-//     "star_votes": "72",
-//     "summary": "A steep, well-maintained trail takes you atop Mt. Si with outrageous views of Puget Sound.",
-//     "trail_url": "https://www.hikingproject.com/trail/7001016/mt-si",
-//     "conditions": "Dry",
-//     "condition_date": "2018-07-22",
-//     "condition_time": "0:17:22 "
-//   },
+
 function Trial(params) {
     this.name=params.name;
     this.location=params.location;
     this.length=params.length;
     this.stars=params.stars;
-    this.star_votes=params.star_votes;
+    this.star_votes=params.starVotes;
     this.summary=params.summary;
-    this.trail_url=params.trail_url;
-    this.condition=params.condition;
-    this.condition_date=params.condition_date;
-    this.condition_time=params.condition_time;
+    this.trail_url=params.url;
+    this.condition=params.conditionStatus;
+    this.condition_date=params.conditionDate.slice(0,10);
+    this.condition_time=params.conditionDate;
 }
 
 
