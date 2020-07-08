@@ -24,8 +24,8 @@ app.get('/', (req, res) => {
 
 // http://localhost:3000/location?city=amman
 app.get('/location', hitLocation);
-// app.get('/weather',hitWeather);
-// app.get('/trails',hitTrails);
+app.get('/weather',hitWeather);
+app.get('/trails',hitTrails);
 app.get('/data', displayDB);
 
 // Route Handlers
@@ -92,8 +92,6 @@ function hitWeather(req, res) {
         });
 };
 function getWeather(lat, lon) {
-    // console.log(Location.all);
-
     let key = process.env.WEATHER_API_KEY;
     let url = `https://api.weatherbit.io/v2.0/forecast/daily?&lat=${lat}&lon=${lon}&key=${key}`;
     return superagent.get(url)
@@ -129,21 +127,11 @@ function getTrials(lat, lon) {
     let url = `https://www.hikingproject.com/data/get-trails?lat=${lat}&lon=${lon}&key=${key}`;
     return superagent.get(url)
         .then(data => {
-            console.log('Here it is the data:>>>>>>>>>' + data);
-            // let trialData=[];
-            // data.body.trails.forEach(ele => {
-            // const creatTrail= new Trial(ele);
-            //     trialData.push(creatTrail);
-            // });
-
-
             let trialData = data.body.trails.map((ele, i) => {
                 const creatTrail = new Trial(ele);
                 return creatTrail;
             });
-            console.log('Here it is the trialData:>>>>>>>>>' + trialData);
             return trialData;
-
         });
 }
 
@@ -169,9 +157,6 @@ app.get('*', (req, res) => {
 app.use((error, req, res) => {
     res.status(500).send(error);
 });
-// app.listen(PORT, () => {
-//     console.log(`port ${PORT}`);
-// });
 
 // To connect the client 
 client.connect()
