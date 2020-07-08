@@ -24,8 +24,8 @@ app.get('/', (req, res) => {
 
 // http://localhost:3000/location?city=amman
 app.get('/location', hitLocation);
-// app.get('/weather',hitWeather);
-// app.get('/trails',hitTrails);
+app.get('/weather',hitWeather);
+app.get('/trails',hitTrails);
 app.get('/data', displayDB);
 
 // Route Handlers
