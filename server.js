@@ -24,8 +24,8 @@ app.get('/', (req, res) => {
 
 // http://localhost:3000/location?city=amman
 app.get('/location', hitLocation);
-app.get('/weather',hitWeather);
-app.get('/trails',hitTrails);
+// app.get('/weather',hitWeather);
+// app.get('/trails',hitTrails);
 app.get('/data', displayDB);
 
 // Route Handlers
@@ -33,7 +33,7 @@ function displayDB(req, res) {
     let SQL = `SELECT * FROM cityData;`;
     client.query(SQL)
         .then(results => {
-            console.log(results);
+            
             res.status(200).json(results.rows);
         })
 };
@@ -41,25 +41,25 @@ function displayDB(req, res) {
 function hitLocation(req, res) {
     const city = req.query.city;
     checklocation(city)
-        .then(data => {
+        .then(data => {     
             if (!data.rows.length) {
                 getLocation(city)
                     .then(data => {
 
                         res.status(200).json(data);
-                        let SQL = `INSERT INTO cityData (city,formatted,latitude,longitude) VALUES ($1,$2,$3,$4)`;
+                        let SQL = `INSERT INTO cityData (search_query,formatted_query,latitude,longitude) VALUES ($1,$2,$3,$4)`;
                         let safeValues = [data.search_query, data.formatted_query, data.latitude, data.longitude];
-                        console.log(safeValues);
                         client.query(SQL, safeValues);
                     });
 
-            } else res.status(200).json(data.rows);
-        })
+            } else res.status(200).json(data.rows[0]);
+        });
 
 };
 
 function checklocation(city) {
-    let SQL = `SELECT * FROM cityData WHERE city='${city}'`
+    let SQL = `SELECT * FROM cityData WHERE search_query='${city}'`
+    
     return client.query(SQL);
 }
 
@@ -92,7 +92,7 @@ function hitWeather(req, res) {
         });
 };
 function getWeather(lat, lon) {
-    // console.log(Location.all);
+
 
     let key = process.env.WEATHER_API_KEY;
     let url = `https://api.weatherbit.io/v2.0/forecast/daily?&lat=${lat}&lon=${lon}&key=${key}`;
@@ -134,7 +134,6 @@ function getTrials(lat, lon) {
                 const creatTrail = new Trial(ele);
                 return creatTrail;
             });
-            console.log('Here it is the trialData:>>>>>>>>>' + trialData);
             return trialData;
 
         });
