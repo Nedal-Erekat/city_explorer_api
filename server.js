@@ -42,7 +42,7 @@ function hitLocation(req, res) {
     const city = req.query.city;
     checklocation(city)
         .then(data => {     
-            if (!data.rows.length) {
+            if (!data.rows.length) { //instead 'rows.length' we can use 'rowCount' 
                 getLocation(city)
                     .then(data => {
 
