@@ -26,6 +26,7 @@ app.get('/', (req, res) => {
 app.get('/location', hitLocation);
 app.get('/weather',hitWeather);
 app.get('/trails',hitTrails);
+app.get('/movies', hitMovies);
 app.get('/data', displayDB);
 
 // Route Handlers
@@ -33,7 +34,7 @@ function displayDB(req, res) {
     let SQL = `SELECT * FROM cityData;`;
     client.query(SQL)
         .then(results => {
-            
+
             res.status(200).json(results.rows);
         })
 };
@@ -41,7 +42,7 @@ function displayDB(req, res) {
 function hitLocation(req, res) {
     const city = req.query.city;
     checklocation(city)
-        .then(data => {     
+        .then(data => {
             if (!data.rows.length) { //instead 'rows.length' we can use 'rowCount' 
                 getLocation(city)
                     .then(data => {
@@ -59,7 +60,7 @@ function hitLocation(req, res) {
 
 function checklocation(city) {
     let SQL = `SELECT * FROM cityData WHERE search_query='${city}'`
-    
+
     return client.query(SQL);
 }
 
@@ -151,6 +152,36 @@ function Trial(params) {
     this.condition = params.conditionStatus;
     this.condition_date = params.conditionDate.slice(0, 10);
     this.condition_time = params.conditionDate;
+};
+
+function hitMovies(req, res) {
+    const city = req.query.city;
+    getMovies(city)
+        .then(data => {
+            res.status(200).json(data);
+        });
+};
+function getMovies(city) {
+    let key = process.env.MOVIE_API_KEY;
+    let url = `https://api.themoviedb.org/3/search/movie?api_key=${key}&query=${city}&language=en-US`;
+    return superagent.get(url)
+        .then(data => {
+            let moviesInLocation=data.body.results.map(ele=>{
+                let creatMovie=new Movie(ele);
+                return creatMovie;
+            });
+            return moviesInLocation;
+        });
+};
+function Movie(obj) {
+    this.title = obj.title;
+    this.overview = obj.overview;
+    this.average_votes = obj.vote_average;
+    this.total_votes = obj.vote_count;
+    this.image_url =`https://image.tmdb.org/t/p/w500${obj.poster_path}`;
+    this.popularity = obj.popularity;
+    this.released_on = obj.release_date;
+
 }
 
 
