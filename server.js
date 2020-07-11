@@ -27,7 +27,9 @@ app.get('/location', hitLocation);
 app.get('/weather',hitWeather);
 app.get('/trails',hitTrails);
 app.get('/movies', hitMovies);
+app.get('/yelp', hitYelp);
 app.get('/data', displayDB);
+
 
 // Route Handlers
 function displayDB(req, res) {
@@ -82,6 +84,8 @@ function Location(city, getData) {
     this.longitude = getData[0].lon;
 }
 
+// =======================> Weather <====================
+
 function hitWeather(req, res) {
     const lat = req.query.latitude;
     const lon = req.query.longitude;
@@ -115,10 +119,12 @@ function Weather(weatherData) {
     this.time = weatherData.datetime;
 };
 
+// =======================> Trails <====================
 
 function hitTrails(req, res) {
     const lat = req.query.latitude;
     const lon = req.query.longitude;
+
     getTrials(lat, lon)
         .then(data => {
             res.status(200).json(data);
@@ -136,7 +142,6 @@ function getTrials(lat, lon) {
                 return creatTrail;
             });
             return trialData;
-
         });
 }
 
@@ -154,22 +159,27 @@ function Trial(params) {
     this.condition_time = params.conditionDate;
 };
 
+// =======================> Movies <====================
+
 function hitMovies(req, res) {
-    const city = req.query.city;
+    const city = req.query.search_query;
     getMovies(city)
         .then(data => {
+            
             res.status(200).json(data);
         });
 };
 function getMovies(city) {
     let key = process.env.MOVIE_API_KEY;
     let url = `https://api.themoviedb.org/3/search/movie?api_key=${key}&query=${city}&language=en-US`;
+
     return superagent.get(url)
         .then(data => {
             let moviesInLocation=data.body.results.map(ele=>{
                 let creatMovie=new Movie(ele);
                 return creatMovie;
             });
+            // console.log('here is the final data>>>>>>>>'+moviesInLocation);
             return moviesInLocation;
         });
 };
@@ -184,6 +194,42 @@ function Movie(obj) {
 
 }
 
+// =======================> yelp <====================
+
+function hitYelp(req,res) {
+    const lat = req.query.latitude;
+    const lon = req.query.longitude;
+    getYelp(lat,lon)
+    .then(data=>{
+        res.status(200).json(data);
+    })
+    
+}
+function getYelp(lat,lon) {
+    let key = process.env.YELP_API_KEY;
+    let url=`https://api.yelp.com/v3/businesses/search?latitude=${lat}&longitude=${lon}`
+    console.log(`reched here befor callback`);
+    return superagent.get(url).set("Authorization", `Bearer ${key}`)
+    .then(data=>{      
+        let yelpsInLocation=data.body.businesses.map(ele=>{
+            let creatYlep=new Ylep(ele);
+            return creatYlep;
+        });
+        
+        return yelpsInLocation;
+        
+    })
+
+}
+function Ylep(obj) {
+    this.name=obj.name;
+    this.image_url=obj.image_url;
+    this.price=obj.price;
+    this.rating=obj.rating;
+    this.url=obj.url;
+
+    
+}
 
 app.get('*', (req, res) => {
     res.send('not fond');
