@@ -1,7 +1,7 @@
 'use strict';
 // Load Environment Variables from the .env file
 
-require('dotenv').config();
+require('dotenv').config(); //should be at the top, to run before anything
 
 // Application Dependencies
 const express = require('express');
@@ -179,7 +179,6 @@ function getMovies(city) {
                 let creatMovie=new Movie(ele);
                 return creatMovie;
             });
-            // console.log('here is the final data>>>>>>>>'+moviesInLocation);
             return moviesInLocation;
         });
 };
