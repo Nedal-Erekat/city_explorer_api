@@ -1,11 +1,11 @@
 'use strict';
 // Load Environment Variables from the .env file
 
-require('dotenv').config();
+require('dotenv').config(); //it reads our env var, should be at the top, to run before anything
 
 // Application Dependencies
 const express = require('express');
-const cors = require('cors');
+const cors = require('cors');// cross original resource sharing
 const superagent = require('superagent');
 const pg = require('pg');//Database
 
@@ -179,7 +179,6 @@ function getMovies(city) {
                 let creatMovie=new Movie(ele);
                 return creatMovie;
             });
-            // console.log('here is the final data>>>>>>>>'+moviesInLocation);
             return moviesInLocation;
         });
 };
